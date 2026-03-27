@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +38,11 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapGet("vulnerable", ([FromQuery] string input) =>
 {
-    var query = $"SELECT * FROM Users WHERE Name = '{input}'";
-    return query;
+    // Simulate executing query
+    var connection = new SqlConnection("Server=.;Database=Test;Trusted_Connection=True;");
+    var command = new SqlCommand($"SELECT * FROM Users WHERE Name = '{input}'", connection);
+
+    return command.CommandText;
 });
 
 app.Run();
