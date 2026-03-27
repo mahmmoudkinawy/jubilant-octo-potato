@@ -32,15 +32,6 @@ app.MapGet("/user", async (HttpRequest request) =>
     return Results.Ok(results);
 });
 
-app.MapPost("/run", (string cmd) =>
-{
-    var process = new System.Diagnostics.Process();
-    process.StartInfo.FileName = "cmd.exe";
-    process.StartInfo.Arguments = "/c " + cmd;
-    process.Start();
-
-    return Results.Ok("Command executed");
-});
 
 app.MapPost("/deserialize", async (HttpRequest request) =>
 {
