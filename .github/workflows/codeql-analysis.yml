@@ -55,7 +55,7 @@ jobs:
           python generate_report.py codeql_alerts.json po_report.html
 
       - name: Upload PO Report as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: PO-Security-Report
           path: po_report.html
