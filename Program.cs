@@ -1,10 +1,15 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 string connectionString = "Server=.;Database=TestDb;User Id=sa;Password=YourPassword123";
+
+var apiKey = "sk-1234567890-secret-key";
+
+app.MapGet("/apikey", () => apiKey);
 
 app.MapGet("/user", async (HttpRequest request) =>
 {
@@ -72,4 +77,82 @@ app.MapGet("/redirect", (string url) =>
     return Results.Redirect(url);
 });
 
+app.MapGet("/jwt", (string token) =>
+{
+    var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+    var jwt = handler.ReadJwtToken(token);
+
+    return Results.Ok(jwt.Claims);
+});
+
+app.MapPost("/login2", (string user, string password, ILogger<Program> logger) =>
+{
+    logger.LogInformation($"User {user} logged in with password {password}");
+
+    return Results.Ok();
+});
+
+app.MapGet("/fetch", async (string url) =>
+{
+    using var client = new HttpClient();
+
+    var data = await client.GetStringAsync(url);
+
+    return Results.Ok(data);
+});
+
+app.MapPost("/invoke", (string typeName, string methodName) =>
+{
+    var type = Type.GetType(typeName);
+    var method = type?.GetMethod(methodName);
+
+    var result = method?.Invoke(null, null);
+
+    return Results.Ok(result);
+});
+
+app.MapPost("/temp", (string content) =>
+{
+    var path = "/tmp/data.txt";
+
+    File.WriteAllText(path, content);
+
+    return Results.Ok();
+});
+
+app.MapGet("/error", () =>
+{
+    try
+    {
+        throw new Exception("Sensitive internal error");
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(ex.ToString());
+    }
+});
+
+app.MapPost("/create-user", ([FromBody] User user) =>
+{
+    return Results.Ok(user);
+});
+
+int balance = 1000;
+
+app.MapPost("/withdraw", (int amount) =>
+{
+    if (balance >= amount)
+    {
+        balance -= amount;
+    }
+
+    return Results.Ok(balance);
+});
+
 app.Run();
+
+public class User
+{
+    public string Username { get; set; }
+    public bool IsAdmin { get; set; }
+}
