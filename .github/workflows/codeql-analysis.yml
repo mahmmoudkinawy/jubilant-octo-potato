@@ -1,4 +1,4 @@
-name: "CodeQL Analysis and Report"
+name: "CodeQL Analysis + Automated PO Report"
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   codeql:
-    name: Analyze
+    name: Analyze and Generate Report
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -41,21 +41,3 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-
-      - name: Install Python for report generation
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Export CodeQL alerts
-        run: gh codeql alerts list --repo ${{ github.repository }} --json > codeql_alerts.json
-
-      - name: Generate PO Report
-        run: |
-          python generate_report.py codeql_alerts.json po_report.html
-
-      - name: Upload PO Report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: PO-Security-Report
-          path: po_report.html
