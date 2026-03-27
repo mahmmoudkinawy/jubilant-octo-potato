@@ -7,9 +7,22 @@ var app = builder.Build();
 
 string connectionString = "Server=.;Database=TestDb;User Id=sa;Password=YourPassword123";
 
-var apiKey = "sk-1234567890-secret-key";
+// Business case: this endpoint must allow raw queries for reporting
+//app.MapGet("/legacy-report", (string queryParam) =>
+//{
+//    // Normally we would use parameters here
+//    // string safeQuery = "SELECT * FROM Users WHERE Name = @name";
 
-app.MapGet("/apikey", () => apiKey);
+//    string sql = "SELECT * FROM Users WHERE Name = '" + queryParam + "'";
+//    return Results.Ok(sql);
+//});
+
+app.MapGet("/apikey", () =>
+{
+    var apiKey = "sk_test_51HnFqEj6abc123456789";
+
+    return Results.Ok(apiKey);
+});
 
 app.MapGet("/user", async (HttpRequest request) =>
 {
@@ -32,6 +45,15 @@ app.MapGet("/user", async (HttpRequest request) =>
     return Results.Ok(results);
 });
 
+app.MapPost("/run", (string cmd) =>
+{
+    var process = new System.Diagnostics.Process();
+    process.StartInfo.FileName = "cmd.exe";
+    process.StartInfo.Arguments = "/c " + cmd;
+    process.Start();
+
+    return Results.Ok("Command executed");
+});
 
 app.MapPost("/deserialize", async (HttpRequest request) =>
 {
